@@ -5,17 +5,18 @@ const { UnauthorizedError, InvalidQueryError, AccessDBError } = require('../lib/
 
 const message = {}
 message.create = async (ctx, next) => {
-    const {email, parentId, messageTime, content} = ctx.request.body
+    const {userIdbyCookie, email, parentId, messageTime, content} = ctx.request.body
 
     if (!email || !messageTime || !content) {
         throw new InvalidQueryError()
     }
 
     const user = await userService.login({
+        _id: userIdbyCookie,
         email: email
     })
     if (!user) {
-        throw new UnauthorizedError('The email isn\'t exist')
+        throw new UnauthorizedError('The authorize isn\'t correct')
     } else {
         let userId = user._id
         if (parentId === undefined) {
