@@ -10,19 +10,12 @@ profile.set = async (ctx, next) => {
     if (!userIdbyCookie) {
         throw new InvalidQueryError()
     }
-    // if (!birthday) {
-    //     verify_birthday = await regularExp.date(birthday)
-    //     if (!verify_birthday) {
-    //         throw new InvalidQueryError()
-    //     }
-    // }
-    // if (!gender) {
-    //     var genderList = [0, 1, 2]
-    //     var success = genderList.includes(gender)
-    //     if (success === false){
-    //         throw new InvalidQueryError()
-    //     }
-    // }
+
+    var updateData = {}
+    if (name) updateData['name'] = name
+    if (nickName) updateData['nickName'] = nickName
+    if (birthday) updateData['birthday'] = new Date(birthday)
+    if (gender) updateData['gender'] = gender
 
     const dirPath = path.join(appRoot, '/upload', userIdbyCookie)
     var fileReader = {}
@@ -41,10 +34,12 @@ profile.set = async (ctx, next) => {
                     throw new FileSystemError()
                 } else {
                     fileReader.pipe(writeStream)
+                    updateData['headShot'] = filePath
                 }
             })
         } else {
             fileReader.pipe(writeStream)
+            updateData['headShot'] = filePath
         }
     }
 
@@ -52,14 +47,7 @@ profile.set = async (ctx, next) => {
         userId: userIdbyCookie
     })
     if (!profileExist) {
-        const profileCreate = await profileService.create({
-            userId: userIdbyCookie,
-            name: name,
-            nickName:  nickName,
-            birthday: (birthday !== undefined) ? new Date(birthday):birthday,
-            gender: gender,
-            headShot: filePath
-        })
+        const profileCreate = await profileService.create(updateData)
         if (!profileCreate) {
             throw new AccessDBError()
         } else {
@@ -80,15 +68,9 @@ profile.set = async (ctx, next) => {
             }
         }
     } else {
+        updateData['updateTime'] = new Date().toISOString()
         const profileUpdate = await profileService.update(
-            {userId: userIdbyCookie},
-            {
-                name: name,
-                nickName:  nickName,
-                birthday: (birthday !== undefined) ? new Date(birthday):birthday,
-                gender: gender,
-                headShot: filePath
-            })
+            {userId: userIdbyCookie}, updateData)
         if (!profileUpdate) {
             throw new AccessDBError()
         } else {
