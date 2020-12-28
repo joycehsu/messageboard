@@ -6,7 +6,7 @@ router.prefix('/v1/message')
 
 router.post('/', cookie.checkCookie, message.create)
 
-router.delete('/', cookie.checkCookie, message.delete)
+router.post('/delete', cookie.checkCookie, message.delete)
 
 router.get('/', cookie.checkCookie, message.get)
 
