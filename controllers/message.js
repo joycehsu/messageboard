@@ -1,7 +1,7 @@
 const userService = require('../service/account')
 const messageService = require('../service/message')
 const replyMessageService = require('../service/reply_message')
-const { UnauthorizedError, InvalidQueryError, AccessDBError } = require('../lib/error')
+const { UnauthorizedError, InvalidQueryError, AccessDBError, ForbiddenError } = require('../lib/error')
 
 const message = {}
 message.create = async (ctx, next) => {
@@ -11,14 +11,14 @@ message.create = async (ctx, next) => {
         throw new InvalidQueryError()
     }
 
-    const user = await userService.login({
-        _id: userIdbyCookie,
-        email: email
-    })
+    const user = await userService.findById(userIdbyCookie)
     if (!user) {
-        throw new UnauthorizedError('The authorize isn\'t correct')
+        throw new UnauthorizedError('The email isn\'t exist')
     } else {
         let userId = user._id
+        if (user.email != email) {
+            throw new ForbiddenError('This is not your message')
+        }
         if (parentId === undefined) {
             const newMessage = await messageService.create({
                 userId: userId,
@@ -68,42 +68,57 @@ message.delete = async (ctx, next) => {
     }
 
     if (parentId === undefined) {
-        const updateMessage = await messageService.update(
-            { 
-                userId: userIdbyCookie,
-                _id: messageId
-            },
-            { status: false})
-        console.log(updateMessage)
-        if (!updateMessage) {
+        const theMessage = await messageService.findById(messageId)
+        if (!theMessage) {
             throw new AccessDBError()
         } else {
-            const updateReplyMessage = await replyMessageService.update(
-                {parentId: messageId},
-                {status: false},
-                true
-            )
-            if (!updateReplyMessage) {
-                throw new AccessDBError()
+            if (theMessage.userId === userIdbyCookie) {
+                const updateMessage = await messageService.update(
+                    { _id: messageId},
+                    { status: false})
+                if (!updateMessage) {
+                    throw new AccessDBError()
+                }
+                else {
+                    const updateReplyMessage = await replyMessageService.update(
+                        {parentId: messageId},
+                        {status: false},
+                        true
+                    )
+                    if (!updateReplyMessage) {
+                        throw new AccessDBError()
+                    }
+                    ctx.result = true
+                    ctx.message = 'Delete messages'
+                }
+            } else {
+                throw new ForbiddenError('This is not you message')
             }
-            console.log(updateReplyMessage)
-            ctx.result = true
-            ctx.message = 'Delete messages'
         }
     } else {
-        const updateReplyMessage = await replyMessageService.update(
-            {
-                userId: userIdbyCookie,
-                _id: messageId,
-                parentId: parentId
-            },
-            {status: false})
-        if (!updateReplyMessage) {
+        const theMessage = await replyMessageService.findById(messageId)
+        if (!theMessage) {
             throw new AccessDBError()
+        } else {
+            if (theMessage.userId === userIdbyCookie) {
+                const updateReplyMessage = await replyMessageService.update(
+                    {
+                        _id: messageId,
+                        parentId: parentId
+                    },
+                    {status: false})
+                if (!updateReplyMessage) {
+                    throw new AccessDBError()
+                }
+                if (updateReplyMessage.nModified === 0){
+                    throw new InvalidQueryError('Cannot find the message.')
+                }
+                ctx.result = true
+                ctx.message = 'Delete reply message'
+            } else {
+                throw new ForbiddenError('This is not you message')
+            }
         }
-        console.log(updateReplyMessage)
-        ctx.result = true
-        ctx.message = 'Delete reply message'
     }
     return next()
 }
