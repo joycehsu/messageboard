@@ -68,9 +68,15 @@ describe('Message Delete Parent', () => {
             expect(message.body.code).toBe(200)
             message2Id = message.body.data.messageId
         })
-        test('User1 Delete Parent message', async() => {
+        test('Fail - User2 Delete Parent message(User1\'s mssage)', async() => {
             let deleteMsg = await request(app.callback()).post('/v1/message/delete').send({
-                email: user1.email,
+                messageId: message1Id
+            })
+            .set('cookie', user2Cookie)
+            expect(deleteMsg.body.code).toBe(403)
+        })
+        test('Success - User1 Delete Parent message', async() => {
+            let deleteMsg = await request(app.callback()).post('/v1/message/delete').send({
                 messageId: message1Id
             })
             .set('cookie', user1Cookie)
