@@ -1,6 +1,11 @@
 const replayMessageBoard = require('../models/index').getModel('reply_message')
 
 const replyMessage = {}
+replyMessage.findById = async (messageData) => {
+    let result = await replayMessageBoard.findById(messageData)
+    return result
+}
+
 replyMessage.check = async (messageData) => {
     let result = await replayMessageBoard.findOne(messageData)
     return result
