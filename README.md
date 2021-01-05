@@ -76,7 +76,7 @@ node bin/www
        }
 
 - Delete
-[DELETE] /v1/message
+[POST] /v1/message/delete
 [BODY]   {
              "messageId": <messageId>,
              "parentId": <parentMessageId> //If the mesaage is reply, need this field
