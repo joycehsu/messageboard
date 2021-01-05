@@ -6,7 +6,7 @@
     "start": "node bin/www",
     "dev": "./node_modules/.bin/nodemon bin/www",
     "prd": "pm2 start bin/www",
-    "test": "jest --testEnvironment=node"
+    "test": "jest --testEnvironment=node --runInBand --forceExit"
   },
   "dependencies": {
     "cookies": "^0.8.0",
