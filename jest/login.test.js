@@ -3,6 +3,7 @@ const app = require('../app')
 const clearDB = require('./clearDB')
 
 describe('Account Login', () => {
+    // use api
     let userCookie = ''
     const correctUser = {
         email: "login_user@gmail.com",
@@ -20,7 +21,9 @@ describe('Account Login', () => {
     }
 
     beforeAll( async() => {
-        // await clearDB()
+        await clearDB()
+        
+        // use api
         const userSign = await request(app.callback()).post('/v1/account/signup').send(correctUser)
     })
 
