@@ -10,6 +10,24 @@ node bin/www
 2. Login (use cookie 30mins.)
 3. UpdateProfile / Message(only parent-child, 2 layers) / Logout
 
+## Test
+
+Use Jest to test node
+
+* Run all test
+
+```
+npm run test
+```
+
+* Run specific file
+```
+npm run <file-path-name>
+
+ex: 
+npm run ./jest/signup.test.js
+```
+
 ## RESTFul API
 
 * Signup
