@@ -4,6 +4,7 @@ const fs = require('fs')
 const clearDB = require('./clearDB')
 
 describe("Profile", () => {
+    // use api
     let userCookie = ''
 
     const user = {
@@ -26,7 +27,9 @@ describe("Profile", () => {
     }
 
     beforeAll( async() => {
-        // await clearDB()
+        await clearDB()
+        
+        // use api
         const userSign = await request(app.callback()).post('/v1/account/signup').send(user)
         const userLogin = await request(app.callback()).post('/v1/account/login').send(user)
         userCookie = await userLogin.headers['set-cookie'].join(';')
