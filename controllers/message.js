@@ -38,6 +38,14 @@ message.create = async (ctx, next) => {
                 ctx.message = 'Create new message'
             }
         } else {
+            try {
+                const parentExist = await messageService.findById(parentId)
+                if (!parentExist) {
+                    throw new AccessDBError()
+                }
+            } catch{
+                throw new AccessDBError()
+            }
             const newReplyMessage = await replyMessageService.create({
                 userId: userId,
                 parentId: parentId,
