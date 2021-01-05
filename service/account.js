@@ -1,6 +1,10 @@
 const User = require('../models/index').getModel('user')
 
 const account = {}
+account.findById = async (userData) => {
+    let result = await User.findById(userData)
+    return result
+}
 account.login = async (userData) => {
     let result = await User.findOne(userData)
     return result
