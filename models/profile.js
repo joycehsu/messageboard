@@ -4,7 +4,6 @@ let ObjectId = mongoose.Schema.Types.ObjectId
 module.exports = {
     name: "profile",
     schema: {
-        _id: { type: ObjectId , default:new mongoose.Types.ObjectId() },
         userId: { type: String, required:true },
         name: String,
         nickName: String,
