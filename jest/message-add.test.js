@@ -91,7 +91,7 @@ describe('Message Create New & Reply', () => {
             .set('cookie', user1Cookie)
             expect(message.body.code).toBe(400)
         })
-        test('Fail - User1 Add message wrong email(Not User1\'s email)', async() => {
+        test('Fail - User1 Add message with wrong email(Not User1\'s email)', async() => {
             let nowTime = new Date().toISOString()
             let date = nowTime.split('T')[0]
             let time = nowTime.split('T')[1].split(':')[0]+':'+nowTime.split('T')[1].split(':')[1]
@@ -103,6 +103,20 @@ describe('Message Create New & Reply', () => {
             })
             .set('cookie', user1Cookie)
             expect(message.body.code).toBe(403)
+        })
+        test('Fail - User2 Replay message with wrong parentId', async() => {
+            let nowTime = new Date().toISOString()
+            let date = nowTime.split('T')[0]
+            let time = nowTime.split('T')[1].split(':')[0]+':'+nowTime.split('T')[1].split(':')[1]
+
+            let message = await request(app.callback()).post('/v1/message').send({
+                email: user2.email,
+                messageTime: date + ' ' +time,
+                content:'testMessage1-Replay',
+                parentId: 'message1Id'
+            })
+            .set('cookie', user2Cookie)
+            expect(message.body.code).toBe(500)
         })
     })
 })
