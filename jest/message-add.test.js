@@ -79,5 +79,30 @@ describe('Message Create New & Reply', () => {
             expect(message.body.code).toBe(200)
             message2Id = message.body.data.messageId
         })
+        test('Fail - User1 Add message loss email', async() => {
+            let nowTime = new Date().toISOString()
+            let date = nowTime.split('T')[0]
+            let time = nowTime.split('T')[1].split(':')[0]+':'+nowTime.split('T')[1].split(':')[1]
+
+            let message = await request(app.callback()).post('/v1/message').send({
+                messageTime: date + ' ' +time,
+                content:'testMessage1'
+            })
+            .set('cookie', user1Cookie)
+            expect(message.body.code).toBe(400)
+        })
+        test('Fail - User1 Add message wrong email(Not User1\'s email)', async() => {
+            let nowTime = new Date().toISOString()
+            let date = nowTime.split('T')[0]
+            let time = nowTime.split('T')[1].split(':')[0]+':'+nowTime.split('T')[1].split(':')[1]
+
+            let message = await request(app.callback()).post('/v1/message').send({
+                email: user2.email,
+                messageTime: date + ' ' +time,
+                content:'testMessage1'
+            })
+            .set('cookie', user1Cookie)
+            expect(message.body.code).toBe(403)
+        })
     })
 })
