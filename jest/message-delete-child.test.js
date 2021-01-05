@@ -1,10 +1,16 @@
 const request = require('supertest')
 const app = require('../app')
+const User = require('../models/index').getModel('user')
+const Cookie = require('../models/index').getModel('cookie')
 const clearDB = require('./clearDB')
 
 describe('Message Delete Child', () => {
-    let user1Cookie = ''
-    let user2Cookie = ''
+    // direct write to DB
+    let user1Cookie = 'cookie=user1cookie; path=/; httponly'
+    let user2Cookie = 'cookie=user2cookie; path=/; httponly'
+    // use api
+    // let user1Cookie = ''
+    // let user2Cookie = ''
     let message1Id = ''
     let message2Id = ''
 
@@ -18,18 +24,24 @@ describe('Message Delete Child', () => {
     }
 
     beforeAll( async() => {
-        // await clearDB()
-        console.log('//////Clear DB Done////////')
+        await clearDB()
+        
+        // direct write to DB
+        const create1 = await User.create(user1)
+        const create2 = await User.create(user2)
+        await Cookie.create({userId: create1._id, cookie:'user1cookie', status:1})
+        await Cookie.create({userId: create2._id, cookie:'user2cookie', status:1})
 
-        const user1Sign = await request(app.callback()).post('/v1/account/signup').send(user1)
-        const user1Login = await request(app.callback()).post('/v1/account/login').send(user1)
-        user1Cookie = await user1Login.headers['set-cookie'].join(';')
-        console.log(user1Cookie)
+        // use api
+        // const user1Sign = await request(app.callback()).post('/v1/account/signup').send(user1)
+        // const user1Login = await request(app.callback()).post('/v1/account/login').send(user1)
+        // user1Cookie = await user1Login.headers['set-cookie'].join(';')
+        // console.log(user1Cookie)
 
-        const user2Sign = await request(app.callback()).post('/v1/account/signup').send(user2)
-        const user2Login = await request(app.callback()).post('/v1/account/login').send(user2)
-        user2Cookie = await user2Login.headers['set-cookie'].join(';')
-        console.log(user2Cookie)
+        // const user2Sign = await request(app.callback()).post('/v1/account/signup').send(user2)
+        // const user2Login = await request(app.callback()).post('/v1/account/login').send(user2)
+        // user2Cookie = await user2Login.headers['set-cookie'].join(';')
+        // console.log(user2Cookie)
     })
 
     afterAll( async() => {
