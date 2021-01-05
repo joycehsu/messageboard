@@ -68,9 +68,16 @@ describe('Message Delete Child', () => {
             expect(message.body.code).toBe(200)
             message2Id = message.body.data.messageId
         })
-        test('User2 Delete Reply message', async() => {
+        test('Fail - User1 Delete Reply message(User2\'s message)', async() => {
             let deleteMsg = await request(app.callback()).post('/v1/message/delete').send({
-                email: user2.email,
+                parentId: message1Id,
+                messageId: message2Id
+            })
+            .set('cookie', user1Cookie)
+            expect(deleteMsg.body.code).toBe(403)
+        })
+        test('Success - User2 Delete Reply message', async() => {
+            let deleteMsg = await request(app.callback()).post('/v1/message/delete').send({
                 parentId: message1Id,
                 messageId: message2Id
             })
